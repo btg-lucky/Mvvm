@@ -1,0 +1,20 @@
+ext {
+
+    android = [
+            compileSdkVersion: 30,
+            buildToolsVersion: "30.0.2",
+            applicationId    : "com.btg.mvvm",
+            minSdkVersion    : 19,
+            targetSdkVersion : 30,
+            versionCode      : 1,
+            versionName      : "1.0"
+    ]
+
+    //依赖统一配置
+    dependencies = [
+            "appcompat"       : "androidx.appcompat:appcompat:1.2.0",
+            "constraintlayout": "androidx.constraintlayout:constraintlayout:1.1.3",
+    ]
+
+
+}
