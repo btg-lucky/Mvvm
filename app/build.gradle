@@ -14,8 +14,12 @@ android {
     }
 
     buildTypes {
-        release {
+        debug{
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -25,4 +29,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation rootProject.ext.dependencies["appcompat"]
     implementation rootProject.ext.dependencies["constraintlayout"]
+    implementation project(":lib_common")
 }
