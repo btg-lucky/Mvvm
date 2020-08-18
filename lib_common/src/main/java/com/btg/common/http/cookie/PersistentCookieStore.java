@@ -27,7 +27,7 @@ import okhttp3.HttpUrl;
  * @描述 cookie 存储器
  */
 public class PersistentCookieStore {
-    private static final String TAG          = "PersistentCookieStore";
+    private static final String LOG_TAG          = "PersistentCookieStore %s";
     private static final String COOKIE_PREFS = "Cookies_prefs";
 
     private Map<String, ConcurrentHashMap<String, Cookie>> cookies;
@@ -128,7 +128,7 @@ public class PersistentCookieStore {
             ObjectOutputStream outputStream = new ObjectOutputStream(os);
             outputStream.writeObject(cookie);
         } catch (IOException e) {
-            Logger.d(TAG, "IOException in encodeCookie", e);
+            Logger.e(LOG_TAG, "IOException in encodeCookie", e);
             return null;
         }
 
@@ -149,9 +149,9 @@ public class PersistentCookieStore {
             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
             cookie = ((OkHttpCookies) objectInputStream.readObject()).getCookies();
         } catch (IOException e) {
-            Logger.d(TAG, "IOException in decodeCookie", e);
+            Logger.e(LOG_TAG, "IOException in decodeCookie", e);
         } catch (ClassNotFoundException e) {
-            Logger.d(TAG, "ClassNotFoundException in decodeCookie", e);
+            Logger.e(LOG_TAG, "ClassNotFoundException in decodeCookie", e);
         }
         return cookie;
     }
