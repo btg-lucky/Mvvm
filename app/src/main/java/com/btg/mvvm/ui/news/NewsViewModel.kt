@@ -6,6 +6,7 @@ import com.btg.common.result.ApiResult
 import com.btg.mvvm.data.model.NewsItem
 import com.btg.mvvm.data.repository.NewsRepository
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,7 @@ class NewsViewModel(private val repository: NewsRepository) : BaseViewModel() {
     val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()
 
     private val _events = Channel<NewsEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
+    val events: Flow<NewsEvent> = _events.receiveAsFlow()
 
     init {
         loadNews()

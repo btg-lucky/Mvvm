@@ -50,6 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun render(state: NewsUiState) {
         binding.progressBar.isVisible = state.isLoading
+        // errorMessage 目前仅通过可见性呈现；需要显示具体错误文案时再扩展 render()
         binding.errorText.isVisible = state.errorMessage != null
         newsAdapter.submitList(state.items)
     }
