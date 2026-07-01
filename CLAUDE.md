@@ -4,62 +4,80 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目现状
 
-早期阶段的 Android 多模块工程。项目名叫 "Mvvm"，但目前**还没有 MVVM 分层**（没有 ViewModel / Repository / 数据流），实质上是一个网络层脚手架 + 空的业务壳。现有代码全是 **Java**（AGP 3.5.4 时代），暂无单元测试、无 README。
+Android 多模块工程，已落地一套 **Kotlin MVVM 架构**：单向数据流 `View → ViewModel → Repository → DataSource`，用"新闻列表"示范页（`MainActivity`）跑通端到端。示范数据走可切换的 `FakeNewsDataSource`（不依赖真实接口/key）。
 
-按全局规范：新代码默认写 Kotlin，不要顺手把已有 Java 文件重写成 Kotlin。
+技术栈：Kotlin 2.0.x（K2）+ 协程/Flow、AGP 8.6.x / Gradle 8.9 / JDK 17、Kotlin DSL 构建脚本 + Gradle Version Catalog、ViewBinding、AndroidX lifecycle。网络层保留（Retrofit 2.11 / OkHttp 4.12），已移除 RxJava2。
+
+原有 `lib_common/http` 下的网络设施仍是 **Java**；MVVM 代码全是 **Kotlin**。按全局规范：新代码写 Kotlin，不要顺手把已有 Java 文件重写成 Kotlin。
 
 ## 构建命令
 
-用 Gradle wrapper（Gradle 5.4.1，AGP 3.5.4）：
+Gradle wrapper（Gradle 8.9，AGP 8.6.x，需 JDK 17）：
 
 ```bash
-./gradlew assembleDebug          # 编译 debug APK
-./gradlew :app:assembleDebug     # 只编 app 模块
-./gradlew build                  # 全量构建（含 lint）
+./gradlew assembleDebug                 # 编译 debug APK
+./gradlew :app:assembleDebug            # 只编 app
+./gradlew installDebug                  # 装到已连接设备
+./gradlew testDebugUnitTest             # 跑单元测试（JVM）
+./gradlew :app:testDebugUnitTest --tests "com.btg.mvvm.ui.news.NewsViewModelTest"  # 单类
+./gradlew lint
 ./gradlew clean
-./gradlew installDebug           # 装到已连接设备
-./gradlew lint                   # 运行 Android lint
 ```
 
-当前没有测试代码。新增测试后：`./gradlew test`（单元测试）、`./gradlew connectedAndroidTest`（instrumented），单类用 `./gradlew :模块:test --tests "全限定类名"`。
+单测目前都在 `app` 模块（`app/src/test/`）。无 instrumented 测试。
 
 ## 模块结构与依赖方向
 
-四个模块，依赖链是关键（决定了代码该放哪一层）：
+四个模块，依赖链决定代码该放哪一层：
 
 ```
 app  ──implementation──▶  lib_common  ──api──▶  lib_opensource   (第三方网络库出口)
                                        ──api──▶  lib_widget       (自定义控件，目前空)
 ```
 
-- **app** (`com.btg.mvvm`)：application 模块，只有 `MainActivity`，唯一带 launcher 的组件。
-- **lib_common** (`com.btg.common`)：核心库，放 `base/` 基类和 `http/` 网络层。用 `api` 依赖下游两个库，所以它们的能力会传递给 app。
-- **lib_opensource** (`com.btg.opensource`)：**没有业务代码，只做依赖聚合** —— 用 `api` 暴露 okhttp3 / retrofit2 / rxjava2 / converter-gson / logger。要给全项目加/换网络相关依赖，改这里。
+- **app** (`com.btg.mvvm`)：application 模块，承载示范业务的完整 MVVM 代码（见下）。
+- **lib_common** (`com.btg.common`)：核心库。放 MVVM 基类 `base/`、通用结果类型 `result/`、以及旧的 `http/` 网络层。用 `api` 暴露 `appcompat` 与 `lifecycle-viewmodel-ktx`，并 `api` 依赖下游两库，能力传递给 app。
+- **lib_opensource** (`com.btg.opensource`)：**无业务代码，只做依赖聚合** —— 用 `api` 暴露 okhttp / retrofit / converter-gson / gson / logger。加/换网络相关依赖改这里。无 Kotlin 代码（未加 kotlin 插件）。
 - **lib_widget** (`com.btg.widget`)：自定义 View 库，目前空。
+
+## MVVM 分层（核心）
+
+单向数据流，各层职责严格：View 只渲染 + 转发事件；ViewModel 持有 UI 状态、调 Repository，不持有 Context/View；Repository 是数据唯一入口。
+
+- **通用结果类型**：`lib_common` `com.btg.common.result.ApiResult<out T>` —— `sealed interface`，`Success`/`Error`。Repository 用它包装成功/失败，ViewModel `when` 穷尽分支。
+- **MVVM 基类**（`lib_common/base`）：
+  - `BaseActivity<VB : ViewBinding>`：泛型承载 ViewBinding，子类实现 `inflateBinding()`。
+  - `BaseViewModel`：极薄 `open class`（分层锚点，暂无通用逻辑）；预留 `BaseFragment`（尚未创建）。
+- **示范业务**（`app`）：
+  - `data/model/NewsItem`（领域模型 data class）
+  - `data/source/`：`NewsDataSource`（接口）、`FakeNewsDataSource`（当前实现，返回假数据 + `delay`）、`NewsApi`（Retrofit suspend 接口示例 + 占位 `NewsResponse`）、`RemoteNewsDataSource`（真实实现骨架，`fetchNews()` 为 `TODO()`，待接真实 key）
+  - `data/repository/NewsRepository`：`suspend getNews(): ApiResult<List<NewsItem>>`，`withContext(ioDispatcher)` + `runCatching`，`ioDispatcher` 可注入（测试用）
+  - `ui/news/`：`NewsUiState`（data class 状态快照）、`NewsEvent`（sealed，一次性事件）、`NewsViewModel`（`StateFlow<NewsUiState>` + `Channel/receiveAsFlow` 事件）、`NewsViewModelFactory`（手动 DI）、`NewsAdapter`（`ListAdapter` + `DiffUtil`）
+  - `MainActivity`：`by viewModels { NewsViewModelFactory(NewsRepository(FakeNewsDataSource())) }` —— **数据源的唯一装配点**；在 `repeatOnLifecycle(STARTED)` 里收集 `uiState`/`events`。
+
+**依赖注入**：手动 DI（`ViewModelProvider.Factory`），无 Hilt/Koin。要换真实数据源，只改 `MainActivity` 装配点那一行（`FakeNewsDataSource` → `RemoteNewsDataSource`），上层不动。
 
 ## 依赖与版本集中管理
 
-**所有** SDK 版本和第三方库版本集中在根目录 `config.gradle` 的 `ext` 里：
-- `ext.android` —— compileSdk 30 / minSdk 19 / targetSdk 30 / buildTools 30.0.2 / applicationId `com.btg.mvvm`。
-- `ext.dependencies` —— 库坐标 map，各模块用 `rootProject.ext.dependencies["xxx"]` 引用。
+版本集中在 **`gradle/libs.versions.toml`**（Gradle Version Catalog），构建脚本是 **Kotlin DSL**（`*.gradle.kts`）。模块脚本用 `libs.xxx` 别名引用，不写死坐标。
 
-加依赖或改版本先动 `config.gradle`，别在模块里写死坐标。改 minSdk/targetSdk/SDK 版本按全局规范需先确认。
+- SDK 级别：`compileSdk 35` / `targetSdk 35` / `minSdk 24`，`applicationId com.btg.mvvm`（在 `app/build.gradle.kts`）。
+- 加依赖/改版本先动 `libs.versions.toml`。改 minSdk/targetSdk/SDK 版本按全局规范需先确认。
+- 各模块用 `namespace`（非 manifest `package`）：app=`com.btg.mvvm`，lib_common=`com.btg.common`，lib_opensource=`com.btg.opensource`，lib_widget=`com.btg.widget`。
 
-## 网络层（核心，全在 lib_common/http）
+## 网络层（旧设施，全在 lib_common/http，仍是 Java）
 
-- **ApiRetrofit**（`http/api/`）：单例，按 `baseUrl` 把 Retrofit 缓存进 `mRetrofitMap`，支持多 baseUrl。装配了 CookieJar、15s 超时、失败重连、`GsonConverterFactory` + `RxJava2CallAdapterFactory`。`initRetrofit(baseUrl)` 传空串则用默认 `BaseContent.BASE_URL`。
-- **ApiService**（`http/api/`）：空接口，Retrofit 接口定义的落点，新增后端接口写这里（或其子接口）。
-- **ApiDns**（`http/api/`）：自定义 `Dns`，把 IPv4 排到 IPv6 前面，规避部分机型解析慢。**注意：目前未接入 OkHttpClient**，需要时在 `ApiRetrofit` 里 `.dns(new ApiDns())`。
-- **gson/**：四个 `TypeAdapter`（Integer/Double/Long/String）把后端返回的 `null`/`"null"` 兜底成 0 / 0.0 / 0L / `""`，在 `ApiRetrofit.buildGson()` 里注册。改空值兜底逻辑看这里。
-- **convert/**：`MyGsonConverterFactory` 及其 request/response converter，用于处理返回体里 code 错误/多余字段。**注意：写好了但 ApiRetrofit 当前用的是标准 `GsonConverterFactory`，这套自定义 Factory 还没接入。**
-- **cookie/**：`CookieManger`(CookieJar) + `PersistentCookieStore` + `OkHttpCookies`，把 cookie 持久化到 SharedPreferences，已接入 OkHttpClient。
-
-## base 基类
-
-- **BaseApplication**：持有静态 `Application`（`ApiRetrofit` 靠它拿 Context），并初始化 logger（全局 tag `BTG_LOG`，仅 DEBUG 打印）。**注意：目前没在 app 的 AndroidManifest 里用 `android:name` 注册**，`getApplication()` 现在会返回 null——真正用起来前得先在 manifest 注册。
-- **BaseActivity**：空 stub（未继承 Activity）。
-- **BaseContent**：常量接口，`BASE_URL` 目前指向聚合数据的头条接口。
+- **ApiRetrofit**（`http/api/`）：单例（`volatile` + 双重检查锁定），按 `baseUrl` 缓存 Retrofit 到 `mRetrofitMap`。装配 CookieJar、15s 超时、失败重连、`GsonConverterFactory`（RxJava2 CallAdapter 已移除；suspend 接口无需 CallAdapter）。
+- **ApiService**（`http/api/`）：旧的 Java 空标记接口。新的 suspend 接口用 Kotlin 写（见 `app` 的 `NewsApi`）——Java 接口无法写 `suspend`。
+- **ApiDns**（`http/api/`）：自定义 `Dns`，IPv4 排到 IPv6 前。**未接入 OkHttpClient**，需要时在 `ApiRetrofit` 里 `.dns(new ApiDns())`。
+- **gson/**：四个 `TypeAdapter`（Integer/Double/Long/String）把 `null`/`"null"` 兜底成 0/0.0/0L/`""`，在 `ApiRetrofit.buildGson()` 注册。
+- **convert/**：`MyGsonConverterFactory` 及其 converter。**写好了但 ApiRetrofit 用的是标准 `GsonConverterFactory`，这套还没接入。**
+- **cookie/**：`CookieManger`(CookieJar) + `PersistentCookieStore` + `OkHttpCookies`，cookie 持久化到 SharedPreferences，已接入 OkHttpClient。
+- **BaseContent**：常量接口，`BASE_URL` 指向聚合数据头条接口。
 
 ## 已知需要留意的点
 
-- 全局用 `com.orhanobut.logger.Logger` 打日志，不要用裸 `android.util.Log` 或 `System.out`。
+- ⚠️ **`BaseApplication` 未在 `app/src/main/AndroidManifest.xml` 用 `android:name` 注册**，`getApplication()` 现返回 null。示范页走 `FakeNewsDataSource` 不碰 `ApiRetrofit`，暂不受影响；但一旦换成 `RemoteNewsDataSource`，`ApiRetrofit` 构造里的 `CookieManger(BaseApplication.getApplication())` 会 NPE。**接真实数据源前，先注册 `BaseApplication`。**
+- 测试用 `kotlinx-coroutines-test`（`runTest` + 注入测试 dispatcher）+ 手写 fake，不引 mockk/mockito/Turbine。ViewModel 测试用 `MainDispatcherRule`（`UnconfinedTestDispatcher`）替换 Main。
+- 日志用 `com.orhanobut.logger.Logger`（全局 tag `BTG_LOG`，仅 DEBUG 打印），不要用裸 `android.util.Log` / `System.out`。
+- 设计文档与实现计划在 `docs/superpowers/`（spec + plan），记录了这套架构的决策依据。
