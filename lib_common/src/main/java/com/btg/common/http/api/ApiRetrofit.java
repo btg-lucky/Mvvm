@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -91,8 +90,6 @@ public class ApiRetrofit {
             mRetrofit = new Retrofit.Builder()
                     .baseUrl(mBaseUrl)
                     .addConverterFactory(GsonConverterFactory.create(buildGson()))//添加json转换框架(正常转换框架)
-                    //支持RxJava2
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .client(httpClintBuilder.build())
                     .build();
             mRetrofitMap.put(mBaseUrl, mRetrofit);

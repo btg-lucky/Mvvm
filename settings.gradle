@@ -1,3 +1,0 @@
-include ':lib_widget'
-include ':app', ':lib_common', ':lib_opensource'
-rootProject.name='Mvvm'
