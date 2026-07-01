@@ -7,3 +7,6 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Claude Code 本地个人权限设置（含 git 写操作，不共享）
+.claude/settings.local.json

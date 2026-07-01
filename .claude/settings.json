@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew assembleDebug *)",
+      "Bash(./gradlew :app:assembleDebug)",
+      "Bash(./gradlew :app:assembleDebug *)",
+      "Bash(./gradlew installDebug)",
+      "Bash(./gradlew installDebug *)",
+      "Bash(./gradlew :app:installDebug)",
+      "Bash(./gradlew :app:installDebug *)",
+      "Bash(./gradlew testDebugUnitTest)",
+      "Bash(./gradlew testDebugUnitTest *)",
+      "Bash(./gradlew :app:testDebugUnitTest)",
+      "Bash(./gradlew :app:testDebugUnitTest *)",
+      "Bash(./gradlew :app:compileDebugKotlin)",
+      "Bash(./gradlew clean)",
+      "Bash(./gradlew lint)",
+      "Bash(./gradlew :app:lint)",
+      "Bash(./gradlew :app:dependencies)",
+      "Bash(./gradlew :app:dependencies *)",
+      "Bash($SKILL_DIR/scripts/review-package *)",
+      "Bash($SKILL_DIR/scripts/task-brief *)",
+      "Bash($SKILL_DIR/scripts/sdd-workspace)"
+    ]
+  }
+}
