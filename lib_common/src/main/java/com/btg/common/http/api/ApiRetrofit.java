@@ -32,7 +32,7 @@ public class ApiRetrofit {
 
     private static final String      LOG_TAG         = "ApiRetrofit %s";
     private static final int         DEFAULT_TIMEOUT = 15;
-    private static       ApiRetrofit sApiRetrofit;
+    private static volatile ApiRetrofit sApiRetrofit;
 
     private String                mBaseUrl     = BaseContent.BASE_URL;
     private Map<String, Retrofit> mRetrofitMap = new HashMap<>();
@@ -48,12 +48,14 @@ public class ApiRetrofit {
      * @return ApiRetrofit
      */
     public static ApiRetrofit getInstance() {
-        synchronized (sApiRetrofit){
-            if (sApiRetrofit == null) {
-                sApiRetrofit = new ApiRetrofit();
+        if (sApiRetrofit == null) {
+            synchronized (ApiRetrofit.class) {
+                if (sApiRetrofit == null) {
+                    sApiRetrofit = new ApiRetrofit();
+                }
             }
-            return sApiRetrofit;
         }
+        return sApiRetrofit;
     }
 
     private ApiRetrofit() {
