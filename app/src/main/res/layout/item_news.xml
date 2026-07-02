@@ -6,6 +6,15 @@
     android:padding="16dp"
     android:background="?android:attr/selectableItemBackground">
 
+    <ImageView
+        android:id="@+id/newsImage"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_marginBottom="8dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:contentDescription="@null" />
+
     <TextView
         android:id="@+id/titleText"
         android:layout_width="match_parent"

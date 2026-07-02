@@ -5,6 +5,8 @@ import com.btg.common.base.BaseViewModel
 import com.btg.common.result.ApiResult
 import com.btg.mvvm.data.model.NewsItem
 import com.btg.mvvm.data.repository.NewsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NewsViewModel(private val repository: NewsRepository) : BaseViewModel() {
+@HiltViewModel
+class NewsViewModel @Inject constructor(
+    private val repository: NewsRepository,
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(NewsUiState())
     val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()

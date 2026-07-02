@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.btg.mvvm.ui.home.HomeFragment"
+        android:label="@string/home_title" />
+
+    <fragment
+        android:id="@+id/newsFragment"
+        android:name="com.btg.mvvm.ui.news.NewsFragment"
+        android:label="@string/demo_news" />
+
+    <fragment
+        android:id="@+id/componentsFragment"
+        android:name="com.btg.mvvm.ui.demo.ComponentsFragment"
+        android:label="@string/demo_components" />
+
+    <fragment
+        android:id="@+id/storageFragment"
+        android:name="com.btg.mvvm.ui.demo.StorageFragment"
+        android:label="@string/demo_storage" />
+
+</navigation>

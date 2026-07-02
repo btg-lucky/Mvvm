@@ -1,64 +1,12 @@
 package com.btg.mvvm
 
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.activity.viewModels
-import androidx.core.view.isVisible
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.btg.common.base.BaseActivity
-import com.btg.mvvm.data.repository.NewsRepository
-import com.btg.mvvm.data.source.FakeNewsDataSource
 import com.btg.mvvm.databinding.ActivityMainBinding
-import com.btg.mvvm.ui.news.NewsAdapter
-import com.btg.mvvm.ui.news.NewsEvent
-import com.btg.mvvm.ui.news.NewsUiState
-import com.btg.mvvm.ui.news.NewsViewModel
-import com.btg.mvvm.ui.news.NewsViewModelFactory
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 
+/** 单 Activity 宿主：承载 Navigation 图，各能力演示在 Fragment 中。 */
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-
-    private val viewModel: NewsViewModel by viewModels {
-        // 手动 DI 唯一装配点：将来接真实接口时把 FakeNewsDataSource 换成 RemoteNewsDataSource。
-        NewsViewModelFactory(NewsRepository(FakeNewsDataSource()))
-    }
-
-    private val newsAdapter = NewsAdapter { viewModel.onNewsClick(it) }
-
     override fun inflateBinding(inflater: LayoutInflater) = ActivityMainBinding.inflate(inflater)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = newsAdapter
-        observe()
-    }
-
-    private fun observe() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.uiState.collect(::render) }
-                launch { viewModel.events.collect(::handleEvent) }
-            }
-        }
-    }
-
-    private fun render(state: NewsUiState) {
-        binding.progressBar.isVisible = state.isLoading
-        // errorMessage 目前仅通过可见性呈现；需要显示具体错误文案时再扩展 render()
-        binding.errorText.isVisible = state.errorMessage != null
-        newsAdapter.submitList(state.items)
-    }
-
-    private fun handleEvent(event: NewsEvent) {
-        when (event) {
-            is NewsEvent.OpenLink ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
-        }
-    }
 }
