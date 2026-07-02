@@ -27,6 +27,7 @@ android {
 dependencies {
     // 网络（原有）
     api(libs.okhttp)
+    api(libs.okhttp.logging)
     api(libs.retrofit)
     api(libs.retrofit.converter.gson)
     api(libs.gson)
