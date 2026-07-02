@@ -6,4 +6,9 @@
     <string name="demo_news">新闻列表（网络+列表+下拉刷新+图片）</string>
     <string name="demo_components">弹窗 / Toast / BottomSheet / 权限</string>
     <string name="demo_storage">存储（DataStore / 加密 / Room）</string>
+
+    <string name="btn_toast">Toast</string>
+    <string name="btn_confirm">确认弹窗</string>
+    <string name="btn_loading">Loading 弹窗（2 秒）</string>
+    <string name="btn_permission">申请相机权限</string>
 </resources>

@@ -14,4 +14,9 @@
         android:name="com.btg.mvvm.ui.news.NewsFragment"
         android:label="@string/demo_news" />
 
+    <fragment
+        android:id="@+id/componentsFragment"
+        android:name="com.btg.mvvm.ui.demo.ComponentsFragment"
+        android:label="@string/demo_components" />
+
 </navigation>

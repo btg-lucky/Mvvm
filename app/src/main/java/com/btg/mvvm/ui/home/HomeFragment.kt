@@ -18,6 +18,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btnNews.setOnClickListener { findNavController().navigate(R.id.newsFragment) }
-        // btnComponents / btnStorage 的跳转在 Task 4 / Task 5 接入目的地后补上
+        binding.btnComponents.setOnClickListener { findNavController().navigate(R.id.componentsFragment) }
+        // btnStorage 的跳转在 Task 5 接入目的地后补上
     }
 }

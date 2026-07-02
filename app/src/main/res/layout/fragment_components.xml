@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button android:id="@+id/btnToast"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp" android:text="@string/btn_toast" />
+
+    <Button android:id="@+id/btnConfirm"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp" android:text="@string/btn_confirm" />
+
+    <Button android:id="@+id/btnLoading"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp" android:text="@string/btn_loading" />
+
+    <Button android:id="@+id/btnPermission"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/btn_permission" />
+
+</LinearLayout>
