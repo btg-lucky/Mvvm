@@ -40,6 +40,7 @@ dependencies {
     api(libs.androidx.appcompat)
     api(libs.androidx.lifecycle.viewmodel.ktx)
     api(libs.kotlinx.coroutines.android)
+    api(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
