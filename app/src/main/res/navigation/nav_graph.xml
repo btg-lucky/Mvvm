@@ -19,4 +19,9 @@
         android:name="com.btg.mvvm.ui.demo.ComponentsFragment"
         android:label="@string/demo_components" />
 
+    <fragment
+        android:id="@+id/storageFragment"
+        android:name="com.btg.mvvm.ui.demo.StorageFragment"
+        android:label="@string/demo_storage" />
+
 </navigation>

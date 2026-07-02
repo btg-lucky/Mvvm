@@ -11,4 +11,8 @@
     <string name="btn_confirm">确认弹窗</string>
     <string name="btn_loading">Loading 弹窗（2 秒）</string>
     <string name="btn_permission">申请相机权限</string>
+
+    <string name="btn_ds_save">DataStore 保存计数+1</string>
+    <string name="btn_secure_save">加密保存 token</string>
+    <string name="btn_room_add">Room 收藏一条</string>
 </resources>
