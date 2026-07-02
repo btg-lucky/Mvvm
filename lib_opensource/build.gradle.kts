@@ -51,7 +51,6 @@ dependencies {
 
     // UI
     api(libs.material)
-    api(libs.smartrefresh.kernel)
-    api(libs.smartrefresh.header.classics)
-    api(libs.smartrefresh.footer.classics)
+    api(libs.androidx.recyclerview)
+    api(libs.androidx.swiperefreshlayout)
 }
