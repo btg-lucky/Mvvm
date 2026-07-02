@@ -8,7 +8,7 @@
 
 现状：已有一套可跑通的 Kotlin MVVM 单向数据流骨架（`View → ViewModel → Repository → DataSource`），但只有网络+列表这一条链路。旧 `lib_common/http` 是早期 Java 网络设施，部分未接入（`MyGsonConverterFactory`、`ApiDns`）、部分是空壳（`ApiService`）。
 
-目标：补齐 Android 项目**高频通用能力**，做成可复用框架。用户已逐条勾选范围（🟢核心 + 🟡按需，全收；🔴 不做）。关键选型已定：**Hilt(KSP) + DataStore + Coil + SmartRefreshLayout + 保留 Gson**。所有 Java 文件转 Kotlin，转完项目零 Java。
+目标：补齐 Android 项目**高频通用能力**，做成可复用框架。用户已逐条勾选范围（核心 + 按需，全收；不做项见第 13 节）。关键选型已定：**Hilt(KSP) + DataStore + Coil + SmartRefreshLayout + 保留 Gson**。所有 Java 文件转 Kotlin，转完项目零 Java。
 
 按用户要求：**当作新项目，放手做**。
 
@@ -33,16 +33,16 @@
 app (com.btg.mvvm)              演示/showcase + Application(@HiltAndroidApp)
                                 单 Activity + Navigation 串起各能力示范页
 lib_common (com.btg.common)     框架核心（绝大部分能力）
-  ├ base/        BaseActivity / BaseFragment / BaseViewModel / BaseApplication
-  ├ result/      ApiResult<T>(数据层结果) + UiState<T>(UI 层四态)
-  ├ network/     Kotlin 重写 http：Retrofit+OkHttp+协程、BaseResponse、safeApiCall、
-  │              异常体系、拦截器、cookie、dns、gson 兜底、下载上传进度、网络状态监听、NetworkModule(Hilt)
-  ├ storage/     DataStore 封装 + EncryptedSharedPreferences 封装 + Room 基建
-  ├ permission/  权限请求封装 + 拒绝引导设置页
-  ├ event/       Flow-based 事件总线
-  ├ app/         App 前后台监听 + 全局崩溃捕获
-  ├ ext/         扩展函数集（dp/px、View 显隐、防抖点击、Flow 收集、Coil 图片扩展）
-  └ ui/          Toast 封装、Loading/确认 Dialog、BottomSheet 基类、沉浸式状态栏、TitleBar 逻辑
+  - base/        BaseActivity / BaseFragment / BaseViewModel / BaseApplication
+  - result/      ApiResult<T>(数据层结果) + UiState<T>(UI 层四态)
+  - network/     Kotlin 重写 http：Retrofit+OkHttp+协程、BaseResponse、safeApiCall、
+                 异常体系、拦截器、cookie、dns、gson 兜底、下载上传进度、网络状态监听、NetworkModule(Hilt)
+  - storage/     DataStore 封装 + EncryptedSharedPreferences 封装 + Room 基建
+  - permission/  权限请求封装 + 拒绝引导设置页
+  - event/       Flow-based 事件总线
+  - app/         App 前后台监听 + 全局崩溃捕获
+  - ext/         扩展函数集（dp/px、View 显隐、防抖点击、Flow 收集、Coil 图片扩展）
+  - ui/          Toast 封装、Loading/确认 Dialog、BottomSheet 基类、沉浸式状态栏、TitleBar 逻辑
 lib_opensource (com.btg.opensource)  纯依赖聚合：api 暴露
                                 okhttp/retrofit/converter-gson/gson/logger
                                 + coil / datastore / room / navigation / smartrefresh / material
@@ -234,7 +234,7 @@ sealed interface UiState<out T> {
 
 每阶段末跑 `./gradlew assembleDebug`（+ 相关 `testDebugUnitTest`）确认。
 
-## 13. 不纳入范围（YAGNI / 🔴）
+## 13. 不纳入范围（YAGNI）
 
 - 屏幕适配（AndroidAutoSize，侵入大）
 - WebView 封装
