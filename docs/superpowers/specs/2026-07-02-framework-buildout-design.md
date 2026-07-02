@@ -224,13 +224,13 @@ sealed interface UiState<out T> {
 
 ## 12. 分阶段实施顺序（每阶段独立编译 + 验证）
 
-0. **地基**：`lib_opensource` 加聚合依赖；Hilt + KSP 接入 `app`/`lib_common`；修 `BaseApplication` 注册（`App : BaseApplication` + `@HiltAndroidApp` + manifest）→ 空壳/现有 demo 编译通过。
-1. **核心基类 + 结果/状态 + 扩展 + 事件总线**：`BaseFragment`、`BaseViewModel` 增强、`UiState<T>` + 映射、`ext/`、`event/`。
-2. **网络层重构**：Kotlin 化 http、`BaseResponse`/`unwrap`、`AppException`/`ExceptionHandler`、`safeApiCall`、拦截器、cookie/dns 接入、gson adapter 转 Kotlin、`NetworkModule`、下载上传进度、网络状态监听。
-3. **UI 组件**：`StateLayout`、Loading/确认 Dialog、BottomSheet 基类、`TitleBar`、沉浸式、SmartRefresh 封装。
-4. **权限 + 存储**：权限封装 + 设置页引导、DataStore、加密 SP、Room 基建 + 收藏 demo。
-5. **可靠性**：崩溃捕获、前后台监听。
-6. **演示台 + Navigation + Coil + 测试**：单 Activity + Navigation、各示范页、Coil 图片、补齐第 11 节测试。
+- **阶段 0 · 地基**：`lib_opensource` 加聚合依赖；Hilt + KSP 接入 `app`/`lib_common`；修 `BaseApplication` 注册（`App : BaseApplication` + `@HiltAndroidApp` + manifest）→ 空壳/现有 demo 编译通过。
+- **阶段 1 · 核心基类 + 结果/状态 + 扩展 + 事件总线**：`BaseFragment`、`BaseViewModel` 增强、`UiState<T>` + 映射、`ext/`、`event/`。
+- **阶段 2 · 网络层重构**：Kotlin 化 http、`BaseResponse`/`unwrap`、`AppException`/`ExceptionHandler`、`safeApiCall`、拦截器、cookie/dns 接入、gson adapter 转 Kotlin、`NetworkModule`、下载上传进度、网络状态监听。
+- **阶段 3 · UI 组件**：`StateLayout`、Loading/确认 Dialog、BottomSheet 基类、`TitleBar`、沉浸式、SmartRefresh 封装。
+- **阶段 4 · 权限 + 存储**：权限封装 + 设置页引导、DataStore、加密 SP、Room 基建 + 收藏 demo。
+- **阶段 5 · 可靠性**：崩溃捕获、前后台监听。
+- **阶段 6 · 演示台 + Navigation + Coil + 测试**：单 Activity + Navigation、各示范页、Coil 图片、补齐第 11 节测试。
 
 每阶段末跑 `./gradlew assembleDebug`（+ 相关 `testDebugUnitTest`）确认。
 
