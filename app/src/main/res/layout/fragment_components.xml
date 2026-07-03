@@ -20,6 +20,10 @@
 
     <Button android:id="@+id/btnPermission"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="@string/btn_permission" />
+        android:layout_marginBottom="12dp" android:text="@string/btn_permission" />
+
+    <Button android:id="@+id/btnBottomSheet"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/btn_bottom_sheet" />
 
 </LinearLayout>

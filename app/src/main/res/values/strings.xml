@@ -11,6 +11,13 @@
     <string name="btn_confirm">确认弹窗</string>
     <string name="btn_loading">Loading 弹窗（2 秒）</string>
     <string name="btn_permission">申请相机权限</string>
+    <string name="btn_bottom_sheet">底部弹窗（BottomSheet）</string>
+
+    <string name="sheet_title">选择操作</string>
+    <string name="sheet_option_share">分享</string>
+    <string name="sheet_option_favorite">收藏</string>
+    <string name="sheet_option_cancel">取消</string>
+    <string name="sheet_result_toast">选择了：%1$s</string>
 
     <string name="btn_ds_save">DataStore 保存计数+1</string>
     <string name="btn_secure_save">加密保存 token</string>

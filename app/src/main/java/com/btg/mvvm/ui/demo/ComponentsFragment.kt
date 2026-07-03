@@ -11,6 +11,7 @@ import com.btg.common.permission.openAppSettings
 import com.btg.common.ui.LoadingDialog
 import com.btg.common.ui.showConfirmDialog
 import com.btg.common.ui.toast
+import com.btg.mvvm.R
 import com.btg.mvvm.databinding.FragmentComponentsBinding
 
 /** 弹窗 / Toast / Loading / 权限 演示。 */
@@ -52,6 +53,17 @@ class ComponentsFragment : BaseFragment<FragmentComponentsBinding>() {
                     )
                 }
             }
+        }
+
+        // BottomSheet：结果监听与 show 都走 childFragmentManager，二者需一致
+        childFragmentManager.setFragmentResultListener(
+            DemoBottomSheet.RESULT_KEY, viewLifecycleOwner,
+        ) { _, bundle ->
+            val action = bundle.getString(DemoBottomSheet.KEY_ACTION).orEmpty()
+            requireContext().toast(getString(R.string.sheet_result_toast, action))
+        }
+        binding.btnBottomSheet.setOnClickListener {
+            DemoBottomSheet().show(childFragmentManager, DemoBottomSheet.TAG)
         }
     }
 }
