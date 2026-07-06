@@ -14,4 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Mvvm"
-include(":app", ":lib_common", ":lib_opensource", ":lib_widget")
+include(":app", ":lib_common", ":lib_opensource", ":lib_widget",
+    ":module_news", ":module_weather", ":module_mine")
