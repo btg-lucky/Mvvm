@@ -30,6 +30,10 @@ class NewsDtoMappingTest {
         assertEquals("", model.uniquekey)
         assertEquals("", model.title)
         assertNull(model.imageUrl)
+        assertEquals("", model.source)
+        assertEquals("", model.date)
+        assertEquals("", model.category)
+        assertEquals("", model.url)
     }
 
     @Test
@@ -48,5 +52,6 @@ class NewsDtoMappingTest {
         assertEquals("娱乐", model.category)
         assertEquals("<p>正文</p>", model.contentHtml)
         assertEquals("https://example.com/1", model.url)
+        assertEquals("2026-07-06 10:00", model.date)
     }
 }
