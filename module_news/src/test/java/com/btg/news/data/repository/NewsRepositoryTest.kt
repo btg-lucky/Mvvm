@@ -12,7 +12,7 @@ import org.junit.Test
 class NewsRepositoryTest {
 
     private val sample = listOf(
-        NewsItem("t", "s", "d", null, "https://example.com/1")
+        NewsItem("k1", "t", "s", "d", "top", null, "https://example.com/1")
     )
 
     @Test

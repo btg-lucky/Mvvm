@@ -44,7 +44,7 @@ class NewsAdapter(
     private companion object {
         val DIFF = object : DiffUtil.ItemCallback<NewsItem>() {
             override fun areItemsTheSame(oldItem: NewsItem, newItem: NewsItem) =
-                oldItem.url == newItem.url
+                oldItem.uniquekey == newItem.uniquekey
 
             override fun areContentsTheSame(oldItem: NewsItem, newItem: NewsItem) =
                 oldItem == newItem

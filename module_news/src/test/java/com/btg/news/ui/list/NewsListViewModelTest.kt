@@ -22,7 +22,7 @@ class NewsListViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val sample = listOf(
-        NewsItem("t", "s", "d", null, "https://example.com/1")
+        NewsItem("k1", "t", "s", "d", "top", null, "https://example.com/1")
     )
 
     /** 用真实 NewsRepository + 受控 fake 数据源，通过数据源控制成功/失败。 */
