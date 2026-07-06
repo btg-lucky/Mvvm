@@ -19,7 +19,10 @@ object PasswordHasher {
             .toHex()
 
     fun verify(password: String, salt: String, expectedHash: String): Boolean =
-        hash(password, salt) == expectedHash
+        MessageDigest.isEqual(
+            hash(password, salt).toByteArray(Charsets.UTF_8),
+            expectedHash.toByteArray(Charsets.UTF_8),
+        )
 
     private fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }
 }
