@@ -38,6 +38,8 @@ android {
 
 dependencies {
     implementation(project(":module_news"))
+    implementation(project(":module_weather"))
+    implementation(project(":module_mine"))
     implementation(project(":lib_common"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
