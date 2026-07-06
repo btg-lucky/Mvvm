@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":module_news"))
     implementation(project(":lib_common"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

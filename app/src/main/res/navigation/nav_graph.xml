@@ -11,7 +11,7 @@
 
     <fragment
         android:id="@+id/newsFragment"
-        android:name="com.btg.mvvm.ui.news.NewsFragment"
+        android:name="com.btg.news.ui.list.NewsListFragment"
         android:label="@string/demo_news" />
 
     <fragment
