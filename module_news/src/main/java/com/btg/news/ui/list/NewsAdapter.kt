@@ -29,7 +29,7 @@ class NewsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: NewsItem) {
             binding.titleText.text = item.title
-            binding.sourceText.text = item.source
+            binding.sourceText.text = if (item.category.isNotBlank()) "${item.category} · ${item.source}" else item.source
             binding.dateText.text = item.date
             if (item.imageUrl.isNullOrEmpty()) {
                 binding.newsImage.visibility = View.GONE

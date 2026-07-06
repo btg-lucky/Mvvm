@@ -7,6 +7,15 @@
     <fragment
         android:id="@+id/newsListFragment"
         android:name="com.btg.news.ui.list.NewsListFragment"
-        android:label="@string/news_title" />
+        android:label="@string/news_title">
+        <action
+            android:id="@+id/action_newsList_to_newsDetail"
+            app:destination="@id/newsDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newsDetailFragment"
+        android:name="com.btg.news.ui.detail.NewsDetailFragment"
+        android:label="@string/news_detail_title" />
 
 </navigation>
