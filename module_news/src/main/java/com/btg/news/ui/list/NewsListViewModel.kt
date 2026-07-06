@@ -3,6 +3,7 @@ package com.btg.news.ui.list
 import androidx.lifecycle.viewModelScope
 import com.btg.common.base.BaseViewModel
 import com.btg.common.result.ApiResult
+import com.btg.news.data.model.NewsCategory
 import com.btg.news.data.model.NewsItem
 import com.btg.news.data.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +35,7 @@ class NewsListViewModel @Inject constructor(
     fun loadNews() {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
-            when (val result = repository.getNews()) {
+            when (val result = repository.getNews(NewsCategory.TOP.type, 1)) {
                 is ApiResult.Success -> _uiState.update {
                     it.copy(isLoading = false, items = result.data)
                 }

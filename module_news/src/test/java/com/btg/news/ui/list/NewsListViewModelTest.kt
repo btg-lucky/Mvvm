@@ -1,6 +1,7 @@
 package com.btg.news.ui.list
 
 import com.btg.common.result.ApiResult
+import com.btg.news.data.model.NewsDetail
 import com.btg.news.data.model.NewsItem
 import com.btg.news.data.repository.NewsRepository
 import com.btg.news.data.source.NewsDataSource
@@ -28,10 +29,11 @@ class NewsListViewModelTest {
     /** 用真实 NewsRepository + 受控 fake 数据源，通过数据源控制成功/失败。 */
     private fun repoReturning(result: ApiResult<List<NewsItem>>): NewsRepository {
         val dataSource = object : NewsDataSource {
-            override suspend fun fetchNews(): List<NewsItem> = when (result) {
+            override suspend fun fetchNews(type: String, page: Int, pageSize: Int): List<NewsItem> = when (result) {
                 is ApiResult.Success -> result.data
                 is ApiResult.Error -> throw result.throwable
             }
+            override suspend fun fetchNewsDetail(uniquekey: String): NewsDetail = throw UnsupportedOperationException()
         }
         return NewsRepository(dataSource, mainDispatcherRule.testDispatcher)
     }

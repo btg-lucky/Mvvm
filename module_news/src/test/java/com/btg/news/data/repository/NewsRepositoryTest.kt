@@ -1,6 +1,8 @@
 package com.btg.news.data.repository
 
+import com.btg.common.network.AppException
 import com.btg.common.result.ApiResult
+import com.btg.news.data.model.NewsDetail
 import com.btg.news.data.model.NewsItem
 import com.btg.news.data.source.NewsDataSource
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -11,36 +13,36 @@ import org.junit.Test
 
 class NewsRepositoryTest {
 
-    private val sample = listOf(
-        NewsItem("k1", "t", "s", "d", "top", null, "https://example.com/1")
-    )
+    private val sampleItem = NewsItem("k1", "t", "s", "d", "top", null, "https://e.com/1")
+    private val sampleDetail = NewsDetail("t", "s", "d", "top", "<p>x</p>", "https://e.com/1")
 
-    @Test
-    fun `getNews returns Success when data source succeeds`() = runTest {
-        val repository = NewsRepository(
-            dataSource = object : NewsDataSource {
-                override suspend fun fetchNews(): List<NewsItem> = sample
-            },
-            ioDispatcher = StandardTestDispatcher(testScheduler)
-        )
+    private class ThrowingSource(private val throwable: Throwable) : NewsDataSource {
+        override suspend fun fetchNews(type: String, page: Int, pageSize: Int): List<NewsItem> = throw throwable
+        override suspend fun fetchNewsDetail(uniquekey: String): NewsDetail = throw throwable
+    }
 
-        val result = repository.getNews()
-
-        assertEquals(ApiResult.Success(sample), result)
+    private inner class SuccessSource : NewsDataSource {
+        override suspend fun fetchNews(type: String, page: Int, pageSize: Int): List<NewsItem> = listOf(sampleItem)
+        override suspend fun fetchNewsDetail(uniquekey: String): NewsDetail = sampleDetail
     }
 
     @Test
-    fun `getNews returns Error when data source throws`() = runTest {
-        val boom = RuntimeException("boom")
-        val repository = NewsRepository(
-            dataSource = object : NewsDataSource {
-                override suspend fun fetchNews(): List<NewsItem> = throw boom
-            },
-            ioDispatcher = StandardTestDispatcher(testScheduler)
-        )
+    fun `getNews wraps success`() = runTest {
+        val repo = NewsRepository(SuccessSource(), StandardTestDispatcher(testScheduler))
+        val result = repo.getNews("top", 1)
+        assertEquals(ApiResult.Success(listOf(sampleItem)), result)
+    }
 
-        val result = repository.getNews()
+    @Test
+    fun `getNews maps exception to AppException`() = runTest {
+        val repo = NewsRepository(ThrowingSource(RuntimeException("boom")), StandardTestDispatcher(testScheduler))
+        val result = repo.getNews("top", 1)
+        assertTrue(result is ApiResult.Error && (result as ApiResult.Error).throwable is AppException)
+    }
 
-        assertTrue(result is ApiResult.Error && result.throwable === boom)
+    @Test
+    fun `getNewsDetail wraps success`() = runTest {
+        val repo = NewsRepository(SuccessSource(), StandardTestDispatcher(testScheduler))
+        assertEquals(ApiResult.Success(sampleDetail), repo.getNewsDetail("k1"))
     }
 }
