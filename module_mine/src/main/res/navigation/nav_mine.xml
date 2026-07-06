@@ -7,6 +7,24 @@
     <fragment
         android:id="@+id/mineFragment"
         android:name="com.btg.mine.ui.MineFragment"
-        android:label="@string/mine_title" />
+        android:label="@string/mine_title">
+        <action
+            android:id="@+id/action_mine_to_login"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.btg.mine.ui.LoginFragment"
+        android:label="@string/login_title">
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.btg.mine.ui.RegisterFragment"
+        android:label="@string/register_title" />
 
 </navigation>

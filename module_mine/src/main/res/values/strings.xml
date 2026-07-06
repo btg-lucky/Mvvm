@@ -1,3 +1,18 @@
 <resources>
     <string name="mine_title">我的</string>
+    <string name="login_title">登录</string>
+    <string name="register_title">注册</string>
+
+    <string name="mine_not_logged_in">未登录</string>
+    <string name="mine_go_login">登录 / 注册</string>
+    <string name="mine_logout">退出登录</string>
+
+    <string name="hint_username">用户名</string>
+    <string name="hint_password">密码</string>
+    <string name="hint_confirm_password">确认密码</string>
+    <string name="btn_login">登录</string>
+    <string name="btn_register">注册</string>
+    <string name="go_register">没有账号？去注册</string>
+    <string name="login_success">登录成功</string>
+    <string name="register_success">注册成功</string>
 </resources>
