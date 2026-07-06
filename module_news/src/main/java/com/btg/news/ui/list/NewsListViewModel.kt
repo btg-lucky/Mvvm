@@ -4,16 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.btg.common.base.BaseViewModel
 import com.btg.common.result.ApiResult
 import com.btg.news.data.model.NewsCategory
-import com.btg.news.data.model.NewsItem
 import com.btg.news.data.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,28 +21,67 @@ class NewsListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NewsListUiState())
     val uiState: StateFlow<NewsListUiState> = _uiState.asStateFlow()
 
-    private val _events = Channel<NewsEvent>(Channel.BUFFERED)
-    val events: Flow<NewsEvent> = _events.receiveAsFlow()
+    /** 当前已加载到的页码（1 起）。 */
+    private var page = 1
 
     init {
-        loadNews()
+        refresh()
     }
 
-    fun loadNews() {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+    fun selectCategory(category: NewsCategory) {
+        if (category == _uiState.value.category) return
+        _uiState.update {
+            it.copy(category = category, items = emptyList(), noMoreData = false, errorMessage = null)
+        }
+        refresh()
+    }
+
+    fun refresh() {
+        val category = _uiState.value.category
+        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
         viewModelScope.launch {
-            when (val result = repository.getNews(NewsCategory.TOP.type, 1)) {
-                is ApiResult.Success -> _uiState.update {
-                    it.copy(isLoading = false, items = result.data)
+            val result = repository.getNews(category.type, 1)
+            // 防串台：结果返回时若分类已切换，丢弃过期结果
+            if (_uiState.value.category != category) return@launch
+            when (result) {
+                is ApiResult.Success -> {
+                    page = 1
+                    _uiState.update {
+                        it.copy(isRefreshing = false, items = result.data, noMoreData = result.data.isEmpty())
+                    }
                 }
                 is ApiResult.Error -> _uiState.update {
-                    it.copy(isLoading = false, errorMessage = result.throwable.message)
+                    it.copy(isRefreshing = false, errorMessage = result.throwable.message ?: "加载失败")
                 }
             }
         }
     }
 
-    fun onNewsClick(item: NewsItem) {
-        viewModelScope.launch { _events.send(NewsEvent.OpenLink(item.url)) }
+    fun loadMore() {
+        val state = _uiState.value
+        if (state.isRefreshing || state.isLoadingMore || state.noMoreData || page >= MAX_PAGE) return
+        val category = state.category
+        _uiState.update { it.copy(isLoadingMore = true) }
+        viewModelScope.launch {
+            val result = repository.getNews(category.type, page + 1)
+            if (_uiState.value.category != category) return@launch
+            when (result) {
+                is ApiResult.Success -> {
+                    page += 1
+                    _uiState.update {
+                        it.copy(isLoadingMore = false, items = it.items + result.data, noMoreData = result.data.isEmpty())
+                    }
+                }
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(isLoadingMore = false) }
+                    postError(result.throwable.message ?: "加载失败")
+                }
+            }
+        }
+    }
+
+    private companion object {
+        /** 聚合接口 page 上限。 */
+        const val MAX_PAGE = 50
     }
 }

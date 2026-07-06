@@ -1,7 +1,5 @@
 package com.btg.news.ui.list
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class NewsListFragment : BaseFragment<FragmentNewsListBinding>() {
 
     private val viewModel: NewsListViewModel by viewModels()
-    private val newsAdapter = NewsAdapter { viewModel.onNewsClick(it) }
+    private val newsAdapter = NewsAdapter { }
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
         FragmentNewsListBinding.inflate(inflater, container, false)
@@ -27,29 +25,21 @@ class NewsListFragment : BaseFragment<FragmentNewsListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = newsAdapter
-        binding.stateLayout.setOnRetryListener { viewModel.loadNews() }
-        binding.swipeRefresh.onRefresh { viewModel.loadNews() }
+        binding.stateLayout.setOnRetryListener { viewModel.refresh() }
+        binding.swipeRefresh.onRefresh { viewModel.refresh() }
 
         viewModel.uiState.collectOnStarted(viewLifecycleOwner) { render(it) }
-        viewModel.events.collectOnStarted(viewLifecycleOwner) { handleEvent(it) }
     }
 
     private fun render(state: NewsListUiState) {
         when {
-            state.isLoading && state.items.isEmpty() -> binding.stateLayout.showLoading()
+            state.isRefreshing && state.items.isEmpty() -> binding.stateLayout.showLoading()
             state.errorMessage != null && state.items.isEmpty() ->
                 binding.stateLayout.showError(state.errorMessage)
             state.items.isEmpty() -> binding.stateLayout.showEmpty()
             else -> binding.stateLayout.showContent()
         }
         newsAdapter.submitList(state.items)
-        if (!state.isLoading) binding.swipeRefresh.isRefreshing = false
-    }
-
-    private fun handleEvent(event: NewsEvent) {
-        when (event) {
-            is NewsEvent.OpenLink ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
-        }
+        if (!state.isRefreshing) binding.swipeRefresh.isRefreshing = false
     }
 }
