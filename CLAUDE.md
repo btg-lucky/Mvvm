@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目现状
 
-Android 多模块工程，已落地一套**可复用的 Kotlin MVVM 业务脚手架**，供新项目直接快速开发。单向数据流 `View → ViewModel → Repository → DataSource`，用单 Activity + Navigation 的**能力演示台**（Home → 新闻 / 组件 / 存储 三个演示页）跑通端到端。示范数据走可切换的 `FakeNewsDataSource`（不依赖真实接口/key）。
+Android 多模块工程：在可复用 Kotlin MVVM 脚手架之上落地了真实三模块 App——**新闻**（聚合数据接口：分类列表 + 分页 + 详情 WebView）、**天气**（占位）、**我的**（本地 Room 账号：注册/登录/退出，DataStore 持久登录态）。单 Activity + BottomNavigationView 三 Tab，每个业务是独立 feature module，自带 navigation graph，app 只做壳。
 
 技术栈：Kotlin 2.0.21（K2）+ 协程/Flow、AGP 8.6.x / Gradle 8.9 / JDK 17、Kotlin DSL + Gradle Version Catalog、ViewBinding。**Hilt(KSP) 依赖注入**、Retrofit 2.11 / OkHttp 4.12、Coil、DataStore、Room、security-crypto、Navigation、SwipeRefreshLayout、Material。
 
@@ -18,27 +18,36 @@ Gradle wrapper（Gradle 8.9，AGP 8.6.x，需 JDK 17）：
 ./gradlew assembleDebug                 # 编译 debug APK
 ./gradlew :app:assembleDebug            # 只编 app
 ./gradlew installDebug                  # 装到已连接设备
-./gradlew testDebugUnitTest             # 跑单元测试（JVM，app + lib_common）
+./gradlew testDebugUnitTest             # 跑全部单元测试（JVM）
+./gradlew :module_news:testDebugUnitTest  # 新闻模块单测
+./gradlew :module_mine:testDebugUnitTest  # 我的模块单测
 ./gradlew :lib_common:testDebugUnitTest --tests "com.btg.common.network.ExceptionHandlerTest"  # 单类
 ./gradlew lint
 ./gradlew clean
 ```
 
-单测在 `app/src/test/` 与 `lib_common/src/test/`。无 instrumented 测试（UI/存储/权限等依赖 framework 的能力靠演示台手动验证）。
+单测在 `module_news/src/test/`、`module_mine/src/test/`、`lib_common/src/test/`。无 instrumented 测试（UI/存储/权限等依赖 framework 的能力靠手动验证）。
 
 ## 模块结构与依赖方向
 
-四个模块，依赖链决定代码该放哪一层：
+七个模块，依赖链决定代码该放哪一层：
 
 ```
-app  ──implementation──▶  lib_common  ──api──▶  lib_opensource   (纯依赖聚合出口)
-                                       ──api──▶  lib_widget       (纯自定义 View)
+app ──▶ module_news / module_weather / module_mine ──▶ lib_common ──api──▶ lib_opensource / lib_widget
 ```
 
-- **app** (`com.btg.mvvm`)：application 模块。`@HiltAndroidApp` 的 `App`、单 Activity(`MainActivity` NavHost)、各演示 Fragment、示范业务（新闻）、Room 收藏 demo、Hilt 装配模块 `di/`。
-- **lib_common** (`com.btg.common`)：**框架核心**，绝大部分能力在这。应用 Hilt+KSP。用 `api` 暴露 appcompat / lifecycle / coroutines / core-ktx 等，并 `api` 依赖下游两库，能力传递给 app。
+**App 壳与 feature 模块：**
+- **app** (`com.btg.mvvm`)：壳。`App`(`@HiltAndroidApp`)、`MainActivity`(NavHost + BottomNavigationView，`nav_main.xml` include 三个子 graph，非顶级页面隐藏底部导航)。
+- **module_news** (`com.btg.news`)：新闻。聚合数据接口（`JuheResponse.unwrap` → safeApiCall 体系，`@JuheRetrofit` 独立 baseUrl `https://v.juhe.cn/`）；API key 走 `local.properties` 的 `JUHE_API_KEY` → BuildConfig，不入库；TabLayout 10 分类 + 分页 + SwipeRefresh + StateLayout + 详情 WebView。
+- **module_weather** (`com.btg.weather`)：占位。
+- **module_mine** (`com.btg.mine`)：本地账号。Room `users` 表 + `PasswordHasher`(SHA-256+盐，constant-time verify) + `SessionStore`(DataStore)；注册/登录/退出页。
+
+**框架库（不含业务）：**
+- **lib_common** (`com.btg.common`)：**框架核心**，绝大部分能力在这。应用 Hilt+KSP。用 `api` 暴露 appcompat / lifecycle / coroutines / core-ktx 等，并 `api` 依赖下游两库，能力传递给上层。
 - **lib_opensource** (`com.btg.opensource`)：**无业务代码，只做依赖聚合** —— `api` 暴露 okhttp(+logging) / retrofit / gson / logger / coil / datastore / security-crypto / room / navigation / material / swiperefreshlayout / recyclerview / lifecycle-process。加/换第三方依赖改这里。无 Kotlin 代码。
 - **lib_widget** (`com.btg.widget`)：纯自定义 View（不依赖框架基类）。当前有 `StateLayout`（多状态布局）、`TitleBar`。程序化构建、零布局资源。
+
+设计文档见 `docs/superpowers/specs/2026-07-06-news-app-modular-design.md`。
 
 ## lib_common 框架能力总览
 
@@ -69,17 +78,22 @@ app  ──implementation──▶  lib_common  ──api──▶  lib_opensour
 
 - `App : BaseApplication()` 加 `@HiltAndroidApp`，已在 manifest 用 `android:name` 注册。
 - ViewModel 用 `@HiltViewModel` + `@Inject constructor`，Fragment 加 `@AndroidEntryPoint` 后 `by viewModels()` 即可。
-- 数据装配放 Hilt `@Module`（如 app 的 `di/NewsModule` 提供 `NewsDataSource`/`NewsRepository`）。**换真实数据源只改对应模块的 `@Provides` 一行**（`FakeNewsDataSource` → `RemoteNewsDataSource`），上层不动。
-- lib_common 里的 `NetworkModule` 提供网络单例。app 与 lib_common 应用 Hilt+KSP；lib_opensource/lib_widget 不接。
+- 数据装配放各模块的 Hilt `@Module`（如 `module_news/di/` 提供 `NewsDataSource`/`NewsRepository`，`module_mine/di/` 提供账号相关依赖）。**换真实数据源只改对应模块的 `@Provides` 一行**，上层不动。
+- lib_common 里的 `NetworkModule` 提供网络单例。app / module_news / module_mine / lib_common 应用 Hilt+KSP；lib_opensource/lib_widget 不接。
 
-## 示范业务（app）
+## 业务模块结构
 
-- `data/model/NewsItem`；`data/source/`：`NewsDataSource`(接口)、`FakeNewsDataSource`(假数据+delay)、`NewsApi`(suspend 接口示例+占位 `NewsResponse`)、`RemoteNewsDataSource`(真实骨架，`TODO()` 待 key)。
-- `data/repository/NewsRepository`：`suspend getNews(): ApiResult<List<NewsItem>>`，`withContext(ioDispatcher)`，`ioDispatcher` 可注入（测试用）。
-- `data/local/`：Room 收藏 demo（`NewsFavorite` 实体、`FavoriteDao : BaseDao`、`AppDatabase`）。
-- `ui/news/`：`NewsUiState`(data class)、`NewsEvent`(sealed 一次性事件)、`NewsViewModel`(`@HiltViewModel`)、`NewsAdapter`(ListAdapter+DiffUtil+Coil)、`NewsFragment`(StateLayout 四态 + SwipeRefresh + Coil)。
-- `ui/home/HomeFragment`、`ui/demo/ComponentsFragment`(弹窗/Toast/Loading/权限)、`ui/demo/StorageFragment`(DataStore/加密/Room)。
-- `MainActivity`：`@AndroidEntryPoint`，承载 `nav_graph`。
+**module_news**
+- `data/source/`：`NewsDataSource`(接口)、`FakeNewsDataSource`(假数据+delay，供单测)、`JuheNewsDataSource`(真实接口，`JuheResponse.unwrap`)、`NewsApi`(Retrofit suspend 接口，`@JuheRetrofit`)。
+- `data/repository/NewsRepository`：按分类分页拉取，`ioDispatcher` 可注入（测试用）。
+- `ui/`：`NewsListViewModel`(`@HiltViewModel`)、`NewsAdapter`(ListAdapter+DiffUtil+Coil)、`NewsListFragment`(TabLayout + SwipeRefresh + StateLayout)、`NewsDetailFragment`(WebView + url fallback)。
+
+**module_mine**
+- `data/local/`：Room `users` 表（`UserEntity`、`UserDao : BaseDao`、`MineDatabase`）。
+- `data/`：`PasswordHasher`(SHA-256+盐，constant-time compare)、`SessionStore`(DataStore `mine_prefs`，持久化登录态)。
+- `ui/`：`LoginFragment`、`RegisterFragment`、`MineFragment`（已登录主页 + 退出）、对应 ViewModel。
+
+**module_weather**：占位，无业务代码。
 
 ## 依赖与版本集中管理
 
@@ -87,13 +101,13 @@ app  ──implementation──▶  lib_common  ──api──▶  lib_opensour
 
 - SDK：`compileSdk 35` / `targetSdk 35` / `minSdk 24`，`applicationId com.btg.mvvm`。
 - 加依赖/改版本先动 `libs.versions.toml`；改 SDK 版本按全局规范需先确认。
-- `namespace`：app=`com.btg.mvvm`，lib_common=`com.btg.common`，lib_opensource=`com.btg.opensource`，lib_widget=`com.btg.widget`。
+- `namespace`：app=`com.btg.mvvm`，module_news=`com.btg.news`，module_weather=`com.btg.weather`，module_mine=`com.btg.mine`，lib_common=`com.btg.common`，lib_opensource=`com.btg.opensource`，lib_widget=`com.btg.widget`。
 - app 主题为 `Theme.MaterialComponents.Light.NoActionBar`（Material 组件前置要求）；targetSdk 35 强制 edge-to-edge，Fragment 根布局用 `android:fitsSystemWindows="true"` 避让系统栏。
 
 ## 约定与留意点
 
-- 测试：`kotlinx-coroutines-test`（`runTest` + 注入 dispatcher）+ 手写 fake，**不引 mockk/mockito/Turbine/Robolectric**。ViewModel 测试用 `MainDispatcherRule`（`UnconfinedTestDispatcher`，app 与 lib_common 各有一份）。依赖 Android framework 的能力尽量把核心逻辑抽纯函数测（如 `PermissionResult`/`ExceptionHandler`/`GsonFactory`），framework 交互靠演示台手动验证。
+- 测试：`kotlinx-coroutines-test`（`runTest` + 注入 dispatcher）+ 手写 fake，**不引 mockk/mockito/Turbine/Robolectric**。ViewModel 测试用 `MainDispatcherRule`（`UnconfinedTestDispatcher`，module_news / module_mine / lib_common 各有一份）。依赖 Android framework 的能力尽量把核心逻辑抽纯函数测（如 `PermissionResult`/`ExceptionHandler`/`GsonFactory`/`PasswordHasher`），framework 交互靠手动验证。
 - 日志用 `com.orhanobut.logger.Logger`（全局 tag `BTG_LOG`，仅 DEBUG），不要用裸 `android.util.Log`/`System.out`。
 - 下拉刷新用官方 `SwipeRefreshLayout`（SmartRefreshLayout 2.1 依赖旧 support 库、与 AGP 8 无 Jetifier 不兼容，已弃用）。
-- 设计文档与分阶段实现计划在 `docs/superpowers/`（spec + 6 份 plan），记录了这套架构逐阶段的决策依据。
-- 待接入（YAGNI 留白）：`RemoteNewsDataSource` 真实接口、`TokenProvider` 真实 token 来源、BottomSheet 具体实例（基类已备）。
+- 设计文档与分阶段实现计划在 `docs/superpowers/`（spec + plan），记录了这套架构逐阶段的决策依据；最新模块化设计文档见 `docs/superpowers/specs/2026-07-06-news-app-modular-design.md`。
+- 待接入（YAGNI 留白）：`TokenProvider` 真实 token 来源、module_weather 真实天气接口、BottomSheet 具体实例（基类已备）。
