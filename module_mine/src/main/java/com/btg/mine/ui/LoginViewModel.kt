@@ -33,11 +33,14 @@ class LoginViewModel @Inject constructor(
         }
         _isSubmitting.value = true
         viewModelScope.launch {
-            when (val result = repository.login(name, password)) {
-                is ApiResult.Success -> _loginSuccess.send(Unit)
-                is ApiResult.Error -> postError(result.throwable.message ?: "登录失败")
+            try {
+                when (val result = repository.login(name, password)) {
+                    is ApiResult.Success -> _loginSuccess.send(Unit)
+                    is ApiResult.Error -> postError(result.throwable.message ?: "登录失败")
+                }
+            } finally {
+                _isSubmitting.value = false
             }
-            _isSubmitting.value = false
         }
     }
 }

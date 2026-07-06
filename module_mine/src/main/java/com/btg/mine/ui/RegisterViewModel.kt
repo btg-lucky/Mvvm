@@ -34,11 +34,14 @@ class RegisterViewModel @Inject constructor(
         }
         _isSubmitting.value = true
         viewModelScope.launch {
-            when (val result = repository.register(name, password)) {
-                is ApiResult.Success -> _registerSuccess.send(Unit)
-                is ApiResult.Error -> postError(result.throwable.message ?: "注册失败")
+            try {
+                when (val result = repository.register(name, password)) {
+                    is ApiResult.Success -> _registerSuccess.send(Unit)
+                    is ApiResult.Error -> postError(result.throwable.message ?: "注册失败")
+                }
+            } finally {
+                _isSubmitting.value = false
             }
-            _isSubmitting.value = false
         }
     }
 }
