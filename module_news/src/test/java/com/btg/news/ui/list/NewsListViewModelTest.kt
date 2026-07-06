@@ -7,6 +7,8 @@ import com.btg.news.data.repository.NewsRepository
 import com.btg.news.data.source.NewsDataSource
 import com.btg.news.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -103,5 +105,25 @@ class NewsListViewModelTest {
         source.failOnFetch = false
         vm.refresh()
         assertEquals(30, vm.uiState.value.items.size)
+    }
+
+    @Test
+    fun `stale loadMore does not leave isLoadingMore stuck after category switch`() = runTest {
+        val repo = NewsRepository(PagingSource(), StandardTestDispatcher(testScheduler))
+        val vm = NewsListViewModel(repo)
+        advanceUntilIdle() // 完成首刷
+
+        vm.loadMore()                        // 挂起中
+        vm.selectCategory(NewsCategory.YULE) // 切分类，loadMore 结果将过期
+        advanceUntilIdle()
+
+        val state = vm.uiState.value
+        assertFalse(state.isLoadingMore)
+        assertEquals(NewsCategory.YULE, state.category)
+
+        // 新分类下 loadMore 仍可用
+        vm.loadMore()
+        advanceUntilIdle()
+        assertEquals(60, vm.uiState.value.items.size)
     }
 }

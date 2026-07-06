@@ -31,7 +31,7 @@ class NewsListViewModel @Inject constructor(
     fun selectCategory(category: NewsCategory) {
         if (category == _uiState.value.category) return
         _uiState.update {
-            it.copy(category = category, items = emptyList(), noMoreData = false, errorMessage = null)
+            it.copy(category = category, items = emptyList(), isLoadingMore = false, noMoreData = false, errorMessage = null)
         }
         refresh()
     }
@@ -64,7 +64,11 @@ class NewsListViewModel @Inject constructor(
         _uiState.update { it.copy(isLoadingMore = true) }
         viewModelScope.launch {
             val result = repository.getNews(category.type, page + 1)
-            if (_uiState.value.category != category) return@launch
+            if (_uiState.value.category != category) {
+                // 分类已切换：丢弃过期结果，并复位加载态避免卡死后续 loadMore
+                _uiState.update { it.copy(isLoadingMore = false) }
+                return@launch
+            }
             when (result) {
                 is ApiResult.Success -> {
                     page += 1
