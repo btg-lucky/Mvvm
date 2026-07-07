@@ -4,6 +4,7 @@ import com.btg.common.network.safeApiCall
 import com.btg.common.result.ApiResult
 import com.btg.weather.data.model.WeatherOverview
 import com.btg.weather.data.source.WeatherDataSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,7 +21,13 @@ class WeatherRepository(
         withContext(ioDispatcher) {
             safeApiCall {
                 val weather = dataSource.fetchWeather(city)
-                val life = runCatching { dataSource.fetchLife(city) }.getOrDefault(emptyList())
+                val life = try {
+                    dataSource.fetchLife(city)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    emptyList()
+                }
                 WeatherOverview(
                     city = weather.city,
                     realtime = weather.realtime,
