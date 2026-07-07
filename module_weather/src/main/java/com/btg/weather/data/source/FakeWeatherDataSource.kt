@@ -6,7 +6,6 @@ import com.btg.weather.data.model.LifeIndex
 import com.btg.weather.data.model.RealtimeWeather
 import com.btg.weather.data.model.WeatherCategory
 import com.btg.weather.data.model.WeatherData
-import kotlinx.coroutines.delay
 
 /**
  * 假数据源：无 key 时演示 / 单测用。
@@ -18,7 +17,6 @@ class FakeWeatherDataSource(
 ) : WeatherDataSource {
 
     override suspend fun fetchWeather(city: String): WeatherData {
-        delay(300)
         if (failWeather) throw AppException.Business(207302, "查询不到该城市的相关信息")
         return WeatherData(
             city = city,
@@ -39,7 +37,6 @@ class FakeWeatherDataSource(
     }
 
     override suspend fun fetchLife(city: String): List<LifeIndex> {
-        delay(150)
         if (failLife) throw AppException.Network("网络错误，请重试")
         return listOf(
             LifeIndex("穿衣", "舒适", "建议着薄外套或牛仔裤等服装。"),
