@@ -1,9 +1,14 @@
 package com.btg.weather.ui
 
+import com.btg.common.network.AppException
 import com.btg.common.result.UiState
 import com.btg.weather.data.CityStore
+import com.btg.weather.data.model.LifeIndex
+import com.btg.weather.data.model.RealtimeWeather
+import com.btg.weather.data.model.WeatherCategory
+import com.btg.weather.data.model.WeatherData
 import com.btg.weather.data.repository.WeatherRepository
-import com.btg.weather.data.source.FakeWeatherDataSource
+import com.btg.weather.data.source.WeatherDataSource
 import com.btg.weather.util.MainDispatcherRule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +30,20 @@ class WeatherViewModelTest {
         override suspend fun save(city: String) { state.value = city }
     }
 
+    private class FakeWeatherSource(private val failWeather: Boolean = false) : WeatherDataSource {
+        override suspend fun fetchWeather(city: String): WeatherData {
+            if (failWeather) throw AppException.Business(207302, "查询不到该城市的相关信息")
+            return WeatherData(
+                city = city,
+                realtime = RealtimeWeather("多云", WeatherCategory.CLOUDY, "22", "60", "东南风", "3级", "75"),
+                future = emptyList(),
+            )
+        }
+        override suspend fun fetchLife(city: String): List<LifeIndex> = emptyList()
+    }
+
     private fun repo(failWeather: Boolean = false) =
-        WeatherRepository(FakeWeatherDataSource(failWeather = failWeather), mainDispatcherRule.testDispatcher)
+        WeatherRepository(FakeWeatherSource(failWeather = failWeather), mainDispatcherRule.testDispatcher)
 
     @Test
     fun `init loads default city Hangzhou when store empty`() = runTest {
