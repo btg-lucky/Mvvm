@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -59,6 +60,7 @@ class WeatherViewModelTest {
         val vm = WeatherViewModel(repo(), FakeCityStore("上海"))
 
         assertEquals("上海", vm.uiState.value.city)
+        assertTrue(vm.uiState.value.content is UiState.Success)
     }
 
     @Test
@@ -86,5 +88,14 @@ class WeatherViewModelTest {
         val vm = WeatherViewModel(repo(failWeather = true), FakeCityStore(""))
 
         assertTrue(vm.uiState.value.content is UiState.Error)
+    }
+
+    @Test
+    fun `selectCity ignores same city`() = runTest {
+        val vm = WeatherViewModel(repo(), FakeCityStore("杭州"))
+        val contentBefore = vm.uiState.value.content
+        vm.selectCity("杭州")
+        assertEquals("杭州", vm.uiState.value.city)
+        assertSame(contentBefore, vm.uiState.value.content)
     }
 }
