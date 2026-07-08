@@ -17,23 +17,58 @@ class WeatherCategoryTest {
     }
 
     @Test
-    fun `rain family maps to RAIN`() {
-        listOf("03", "04", "05", "07", "10", "12", "19", "21", "25").forEach {
-            assertEquals("wid=$it", WeatherCategory.RAIN, WeatherCategory.fromWid(it))
+    fun `light rain family maps to LIGHT_RAIN`() {
+        listOf("03", "07", "08", "21").forEach {
+            assertEquals("wid=$it", WeatherCategory.LIGHT_RAIN, WeatherCategory.fromWid(it))
         }
     }
 
     @Test
-    fun `snow family maps to SNOW`() {
-        listOf("06", "13", "16", "17", "26", "28").forEach {
-            assertEquals("wid=$it", WeatherCategory.SNOW, WeatherCategory.fromWid(it))
+    fun `heavy rain family maps to STORM_RAIN`() {
+        listOf("09", "10", "11", "12", "22", "23", "24", "25").forEach {
+            assertEquals("wid=$it", WeatherCategory.STORM_RAIN, WeatherCategory.fromWid(it))
         }
     }
 
     @Test
-    fun `fog dust haze map to FOG`() {
-        listOf("18", "20", "29", "30", "31", "53").forEach {
+    fun `thunder family maps to THUNDER`() {
+        listOf("04", "05").forEach {
+            assertEquals("wid=$it", WeatherCategory.THUNDER, WeatherCategory.fromWid(it))
+        }
+    }
+
+    @Test
+    fun `light snow family maps to LIGHT_SNOW`() {
+        listOf("13", "14", "26").forEach {
+            assertEquals("wid=$it", WeatherCategory.LIGHT_SNOW, WeatherCategory.fromWid(it))
+        }
+    }
+
+    @Test
+    fun `heavy snow family maps to HEAVY_SNOW`() {
+        listOf("15", "16", "17", "27", "28").forEach {
+            assertEquals("wid=$it", WeatherCategory.HEAVY_SNOW, WeatherCategory.fromWid(it))
+        }
+    }
+
+    @Test
+    fun `sleet and freezing rain map to SLEET`() {
+        listOf("06", "19").forEach {
+            assertEquals("wid=$it", WeatherCategory.SLEET, WeatherCategory.fromWid(it))
+        }
+    }
+
+    @Test
+    fun `fog and haze map to FOG`() {
+        listOf("18", "53").forEach {
             assertEquals("wid=$it", WeatherCategory.FOG, WeatherCategory.fromWid(it))
+        }
+    }
+
+    @Test
+    fun `dust family maps to DUST`() {
+        listOf("20", "29", "30", "31").forEach {
+            assertEquals("wid=$it", WeatherCategory.DUST, WeatherCategory.fromWid(it))
         }
     }
 

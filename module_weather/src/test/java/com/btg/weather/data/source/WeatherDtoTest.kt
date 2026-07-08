@@ -27,8 +27,8 @@ class WeatherDtoTest {
         assertEquals("80", data.realtime.aqi)
         assertEquals(1, data.future.size)
         assertEquals("1/7℃", data.future[0].temperature)
-        // future 档位取白天 wid=07 → RAIN
-        assertEquals(WeatherCategory.RAIN, data.future[0].category)
+        // future 档位取白天 wid=07 → LIGHT_RAIN
+        assertEquals(WeatherCategory.LIGHT_RAIN, data.future[0].category)
     }
 
     @Test

@@ -65,7 +65,7 @@ class WeatherFragment : BaseFragment<FragmentWeatherBinding>() {
 
     private fun bindOverview(data: WeatherOverview) {
         val rt = data.realtime
-        binding.currentCard.setBackgroundResource(rt.category.backgroundRes())
+        binding.weatherBackground.setImageResource(rt.category.backgroundRes())
         binding.illustrationImage.setImageResource(rt.category.illustrationRes())
         binding.temperatureText.text = getString(R.string.weather_temperature_unit, rt.temperature)
         binding.infoText.text = rt.info
