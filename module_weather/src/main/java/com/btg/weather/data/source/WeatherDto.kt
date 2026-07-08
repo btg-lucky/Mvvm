@@ -5,7 +5,7 @@ import com.btg.weather.data.model.ForecastDay
 import com.btg.weather.data.model.LifeIndex
 import com.btg.weather.data.model.RealtimeWeather
 import com.btg.weather.data.model.WeatherCategory
-import com.btg.weather.data.model.WeatherData
+import com.btg.weather.data.model.WeatherSnapshot
 
 /** query 接口 result：{ city, realtime, future }。 */
 data class WeatherQueryResult(
@@ -63,9 +63,9 @@ private val LIFE_NAMES: Map<String, String> = linkedMapOf(
     "diaoyu" to "钓鱼",
 )
 
-fun WeatherQueryResult.toWeatherData(): WeatherData {
+fun WeatherQueryResult.toWeatherSnapshot(): WeatherSnapshot {
     val rt = realtime ?: throw AppException.Parse("天气实况数据为空")
-    return WeatherData(
+    return WeatherSnapshot(
         city = city.orEmpty(),
         realtime = RealtimeWeather(
             info = rt.info.orEmpty(),

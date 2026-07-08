@@ -5,7 +5,7 @@ import com.btg.weather.data.model.ForecastDay
 import com.btg.weather.data.model.LifeIndex
 import com.btg.weather.data.model.RealtimeWeather
 import com.btg.weather.data.model.WeatherCategory
-import com.btg.weather.data.model.WeatherData
+import com.btg.weather.data.model.WeatherSnapshot
 import kotlinx.coroutines.delay
 
 /**
@@ -17,10 +17,10 @@ class FakeWeatherDataSource(
     private val failLife: Boolean = false,
 ) : WeatherDataSource {
 
-    override suspend fun fetchWeather(city: String): WeatherData {
+    override suspend fun fetchWeather(city: String): WeatherSnapshot {
         delay(300)
         if (failWeather) throw AppException.Business(207302, "查询不到该城市的相关信息")
-        return WeatherData(
+        return WeatherSnapshot(
             city = city,
             realtime = RealtimeWeather(
                 info = "多云", category = WeatherCategory.CLOUDY,

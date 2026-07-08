@@ -19,7 +19,7 @@ class WeatherDtoTest {
             ),
         )
 
-        val data = result.toWeatherData()
+        val data = result.toWeatherSnapshot()
 
         assertEquals("苏州", data.city)
         assertEquals("阴", data.realtime.info)
@@ -34,7 +34,7 @@ class WeatherDtoTest {
     @Test
     fun `query result with null realtime throws Parse`() {
         val result = WeatherQueryResult(city = "苏州", realtime = null, future = emptyList())
-        assertThrows(AppException.Parse::class.java) { result.toWeatherData() }
+        assertThrows(AppException.Parse::class.java) { result.toWeatherSnapshot() }
     }
 
     @Test
@@ -44,7 +44,7 @@ class WeatherDtoTest {
             realtime = RealtimeDto(null, null, null, null, null, null, null),
             future = null,
         )
-        val data = result.toWeatherData()
+        val data = result.toWeatherSnapshot()
         assertEquals("", data.city)
         assertEquals("", data.realtime.info)
         assertEquals(WeatherCategory.CLOUDY, data.realtime.category) // null wid 兜底

@@ -6,7 +6,7 @@ import com.btg.weather.data.CityStore
 import com.btg.weather.data.model.LifeIndex
 import com.btg.weather.data.model.RealtimeWeather
 import com.btg.weather.data.model.WeatherCategory
-import com.btg.weather.data.model.WeatherData
+import com.btg.weather.data.model.WeatherSnapshot
 import com.btg.weather.data.repository.WeatherRepository
 import com.btg.weather.data.source.WeatherDataSource
 import com.btg.weather.util.MainDispatcherRule
@@ -32,9 +32,9 @@ class WeatherViewModelTest {
     }
 
     private class FakeWeatherSource(private val failWeather: Boolean = false) : WeatherDataSource {
-        override suspend fun fetchWeather(city: String): WeatherData {
+        override suspend fun fetchWeather(city: String): WeatherSnapshot {
             if (failWeather) throw AppException.Business(207302, "查询不到该城市的相关信息")
-            return WeatherData(
+            return WeatherSnapshot(
                 city = city,
                 realtime = RealtimeWeather("多云", WeatherCategory.CLOUDY, "22", "60", "东南风", "3级", "75"),
                 future = emptyList(),

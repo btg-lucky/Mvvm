@@ -36,7 +36,7 @@ data class WeatherOverview(
 )
 
 /** 数据源层载体：query 接口解出的天气部分（不含 life）。city 取接口 result.city。 */
-data class WeatherData(
+data class WeatherSnapshot(
     val city: String,
     val realtime: RealtimeWeather,
     val future: List<ForecastDay>,
