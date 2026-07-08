@@ -45,7 +45,7 @@
                         android:layout_height="wrap_content"
                         android:padding="4dp"
                         android:text="@string/weather_change_city"
-                        android:textColor="#1976D2"
+                        android:textColor="@color/weather_link"
                         android:textSize="14sp" />
                 </LinearLayout>
 
