@@ -38,7 +38,6 @@ class WeatherFragment : BaseFragment<FragmentWeatherBinding>() {
         binding.swipeRefresh.onRefresh { viewModel.refresh() }
         binding.stateLayout.setOnRetryListener { viewModel.refresh() }
 
-        val showCityDialog = { showCityDialog() }
         binding.changeCityText.setOnClickListener { showCityDialog() }
         binding.cityText.setOnClickListener { showCityDialog() }
 
