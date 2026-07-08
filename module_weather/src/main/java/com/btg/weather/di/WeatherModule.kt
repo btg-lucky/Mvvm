@@ -21,10 +21,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-/** 天气聚合数据专用 Retrofit 限定符（baseUrl apis.juhe.cn，与 news 的 v.juhe.cn 不同）。 */
+/** 天气接口专用 Retrofit 限定符（baseUrl apis.juhe.cn，与 news 的 v.juhe.cn 区分）。 */
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class WeatherJuheRetrofit
+annotation class WeatherRetrofit
 
 /**
  * 天气数据装配。数据源唯一装配点：无 key 调试时把 RemoteWeatherDataSource
@@ -38,7 +38,7 @@ object WeatherModule {
 
     @Provides
     @Singleton
-    @WeatherJuheRetrofit
+    @WeatherRetrofit
     fun provideWeatherRetrofit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
         .baseUrl(WEATHER_BASE_URL)
         .client(client)
@@ -47,7 +47,7 @@ object WeatherModule {
 
     @Provides
     @Singleton
-    fun provideWeatherApi(@WeatherJuheRetrofit retrofit: Retrofit): WeatherApi =
+    fun provideWeatherApi(@WeatherRetrofit retrofit: Retrofit): WeatherApi =
         retrofit.create(WeatherApi::class.java)
 
     @Provides

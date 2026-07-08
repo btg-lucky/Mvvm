@@ -16,10 +16,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-/** 聚合数据专用 Retrofit 限定符（baseUrl 与框架默认不同，演示多 baseUrl 模式）。 */
+/** 新闻接口专用 Retrofit 限定符（baseUrl v.juhe.cn，与天气的 apis.juhe.cn 区分）。 */
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class JuheRetrofit
+annotation class NewsRetrofit
 
 /**
  * 新闻数据装配。数据源唯一装配点：无 key 调试时把 RemoteNewsDataSource
@@ -29,20 +29,20 @@ annotation class JuheRetrofit
 @InstallIn(SingletonComponent::class)
 object NewsModule {
 
-    private const val JUHE_BASE_URL = "https://v.juhe.cn/"
+    private const val NEWS_BASE_URL = "https://v.juhe.cn/"
 
     @Provides
     @Singleton
-    @JuheRetrofit
-    fun provideJuheRetrofit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
-        .baseUrl(JUHE_BASE_URL)
+    @NewsRetrofit
+    fun provideNewsRetrofit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
+        .baseUrl(NEWS_BASE_URL)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     @Provides
     @Singleton
-    fun provideNewsApi(@JuheRetrofit retrofit: Retrofit): NewsApi =
+    fun provideNewsApi(@NewsRetrofit retrofit: Retrofit): NewsApi =
         retrofit.create(NewsApi::class.java)
 
     @Provides
