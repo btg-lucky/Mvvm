@@ -48,7 +48,7 @@ object NewsModule {
     @Provides
     @Singleton
     fun provideNewsDataSource(api: NewsApi): NewsDataSource =
-        RemoteNewsDataSource(api, BuildConfig.JUHE_API_KEY)
+        RemoteNewsDataSource(api, BuildConfig.JUHE_NEWS_API_KEY)
 
     @Provides
     @Singleton
