@@ -2,8 +2,8 @@ package com.btg.common.network
 
 import android.content.Context
 import com.btg.common.BuildConfig
-import com.btg.common.base.BaseContent
-import com.btg.common.network.cookie.CookieManger
+import com.btg.common.base.BaseConstant
+import com.btg.common.network.cookie.CookieManager
 import com.btg.common.network.gson.GsonFactory
 import com.btg.common.network.interceptor.HeaderInterceptor
 import com.btg.common.network.interceptor.TokenInterceptor
@@ -43,7 +43,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCookieJar(@ApplicationContext context: Context): CookieJar = CookieManger(context)
+    fun provideCookieJar(@ApplicationContext context: Context): CookieJar = CookieManager(context)
 
     @Provides
     @Singleton
@@ -71,7 +71,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
-        .baseUrl(BaseContent.BASE_URL)
+        .baseUrl(BaseConstant.BASE_URL)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()

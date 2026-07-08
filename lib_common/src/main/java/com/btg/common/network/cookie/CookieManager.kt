@@ -6,7 +6,7 @@ import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
 /** OkHttp CookieJar 实现，委托 [PersistentCookieStore] 做持久化。 */
-class CookieManger(context: Context) : CookieJar {
+class CookieManager(context: Context) : CookieJar {
 
     private val cookieStore = PersistentCookieStore(context)
 
