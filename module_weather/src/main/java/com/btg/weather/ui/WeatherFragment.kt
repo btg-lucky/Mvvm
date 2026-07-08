@@ -50,6 +50,7 @@ class WeatherFragment : BaseFragment<FragmentWeatherBinding>() {
         binding.swipeRefresh.isRefreshing = state.isRefreshing
         when (val content = state.content) {
             is UiState.Loading -> binding.stateLayout.showLoading()
+            // WeatherOverview 非列表，toUiState() 不会产出 Empty；保留分支满足 when 穷尽性
             is UiState.Empty -> binding.stateLayout.showEmpty()
             is UiState.Error -> {
                 if (state.isRefreshing) binding.stateLayout.showContent()
@@ -69,13 +70,13 @@ class WeatherFragment : BaseFragment<FragmentWeatherBinding>() {
         binding.temperatureText.text = getString(R.string.weather_temperature_unit, rt.temperature)
         binding.infoText.text = rt.info
         binding.detailText.text = buildString {
-            append(getString(R.string.weather_humidity, rt.humidity))
-            append("   ")
-            append(getString(R.string.weather_wind, rt.direct, rt.power))
-            if (rt.aqi.isNotBlank()) {
-                append("   ")
-                append(getString(R.string.weather_aqi, rt.aqi))
+            val parts = mutableListOf<String>()
+            if (rt.humidity.isNotBlank()) parts += getString(R.string.weather_humidity, rt.humidity)
+            if (rt.direct.isNotBlank() || rt.power.isNotBlank()) {
+                parts += getString(R.string.weather_wind, rt.direct, rt.power).trim()
             }
+            if (rt.aqi.isNotBlank()) parts += getString(R.string.weather_aqi, rt.aqi)
+            append(parts.joinToString("   "))
         }
         forecastAdapter.submitList(data.future)
         binding.lifeTitle.visibility = if (data.life.isEmpty()) View.GONE else View.VISIBLE

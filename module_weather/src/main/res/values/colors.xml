@@ -2,4 +2,5 @@
 <resources>
     <color name="weather_link">#1976D2</color>
     <color name="weather_text_secondary">#888888</color>
+    <color name="weather_forecast_icon_tint">#546E7A</color>
 </resources>

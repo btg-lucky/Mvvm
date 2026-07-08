@@ -9,7 +9,6 @@
     <string name="weather_temperature_unit">%1$s°</string>
     <string name="weather_forecast_title">近 5 天</string>
     <string name="weather_life_title">生活指数</string>
-    <string name="weather_empty">暂无天气数据</string>
     <string name="weather_confirm">确定</string>
     <string name="weather_cancel">取消</string>
 </resources>
