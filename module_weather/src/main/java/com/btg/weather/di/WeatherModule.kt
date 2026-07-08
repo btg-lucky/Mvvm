@@ -53,7 +53,7 @@ object WeatherModule {
     @Provides
     @Singleton
     fun provideWeatherDataSource(api: WeatherApi): WeatherDataSource =
-        RemoteWeatherDataSource(api, BuildConfig.JUHE_API_KEY)
+        RemoteWeatherDataSource(api, BuildConfig.JUHE_WEATHER_API_KEY)
 
     @Provides
     @Singleton
