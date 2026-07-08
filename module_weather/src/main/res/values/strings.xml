@@ -1,4 +1,15 @@
 <resources>
     <string name="weather_title">天气</string>
-    <string name="weather_developing">天气功能开发中…</string>
+    <string name="weather_change_city">切换城市</string>
+    <string name="weather_city_hint">输入城市名，如 杭州</string>
+    <string name="weather_refresh">刷新</string>
+    <string name="weather_humidity">湿度 %1$s%%</string>
+    <string name="weather_wind">%1$s %2$s</string>
+    <string name="weather_aqi">空气质量 %1$s</string>
+    <string name="weather_temperature_unit">%1$s°</string>
+    <string name="weather_forecast_title">近 5 天</string>
+    <string name="weather_life_title">生活指数</string>
+    <string name="weather_empty">暂无天气数据</string>
+    <string name="weather_confirm">确定</string>
+    <string name="weather_cancel">取消</string>
 </resources>
